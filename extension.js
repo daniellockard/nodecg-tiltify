@@ -13,7 +13,13 @@ module.exports = function (nodecg) {
   });
   var scheduleRep = nodecg.Replicant("schedule", {
 		defaultValue: []
-	});
+  });
+  var challengesRep = nodecg.Replicant("challenges", {
+    defaultValue: []
+  });
+  var rewardsRep = nodecg.Replicant("rewards", {
+    defaultValue: []
+  });
 	var defaultURL = "https://tiltify.com/api/v3"
 
 
@@ -28,7 +34,7 @@ module.exports = function (nodecg) {
 	}
 
 	async function askTiltifyForDonations() {
-		var donationsRequest = await WebRequest.get(`${defaultURL}/campaigns/${nodecg.bundleConfig.tiltify_campaign_id}/donations`, {
+		let donationsRequest = await WebRequest.get(`${defaultURL}/campaigns/${nodecg.bundleConfig.tiltify_campaign_id}/donations`, {
 			headers: {
 				"Authorization": "Bearer " + nodecg.bundleConfig.tiltify_api_key
 			}
@@ -55,6 +61,26 @@ module.exports = function (nodecg) {
 		});
 
 		processSchedule(scheduleRequest.content);
+  }
+  
+  async function askTiltifyForChallenges() {
+		let challengesRequest = await WebRequest.get(`${defaultURL}/campaigns/${nodecg.bundleConfig.tiltify_campaign_id}/challenges`, {
+			headers: {
+				"Authorization": "Bearer " + nodecg.bundleConfig.tiltify_api_key
+			}
+		});
+
+		processChallenges(challengesRequest.content);
+  }
+  
+  async function askTiltifyForRewards() {
+		let rewardsRequest = await WebRequest.get(`${defaultURL}/campaigns/${nodecg.bundleConfig.tiltify_campaign_id}/rewards`, {
+			headers: {
+				"Authorization": "Bearer " + nodecg.bundleConfig.tiltify_api_key
+			}
+		});
+
+		processRewards(rewardsRequest.content);
 	}
 
 
@@ -100,10 +126,25 @@ module.exports = function (nodecg) {
     scheduleRep.value = schedule;
   }
 
+  function processChallenges(content) {
+    var parsedContent = JSON.parse(content);
+    var challenges = parsedContent.data;
+    challengesRep.value = challenges;
+  }
+
+  function processRewards(content) {
+    var parsedContent = JSON.parse(content);
+    var rewards = parsedContent.data;
+    rewardsRep.value = rewards;
+  }
+
 	function askTiltify() {
 		askTiltifyForDonations();
 		askTiltifyForPolls();
-		askTiltifyForTotal();
+    askTiltifyForTotal();
+    askTiltifyForChallenges();
+    askTiltifyForSchedule();
+    askTiltifyForRewards();
 	}
 
 	setInterval(function () {
