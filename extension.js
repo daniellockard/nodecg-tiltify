@@ -5,8 +5,13 @@ module.exports = function (nodecg) {
 	var donationsRep = nodecg.Replicant("donations", {
 		defaultValue: []
 	});
-	var campaignTotalRep = nodecg.Replicant("total");
+	var campaignTotalRep = nodecg.Replicant("total", {
+    defaultValue: 0
+  });
 	var pollsRep = nodecg.Replicant("donationpolls", {
+		defaultValue: []
+  });
+  var scheduleRep = nodecg.Replicant("schedule", {
 		defaultValue: []
 	});
 	var defaultURL = "https://tiltify.com/api/v3"
@@ -42,6 +47,17 @@ module.exports = function (nodecg) {
 		processPolls(pollsRequest.content);
 	}
 
+  async function askTiltifyForSchedule() {
+		let scheduleRequest = await WebRequest.get(`${defaultURL}/campaigns/${nodecg.bundleConfig.tiltify_campaign_id}/schedule`, {
+			headers: {
+				"Authorization": "Bearer " + nodecg.bundleConfig.tiltify_api_key
+			}
+		});
+
+		processSchedule(scheduleRequest.content);
+	}
+
+
 	async function askTiltifyForTotal() {
 		var donationTotalRequest = await WebRequest.get(`${defaultURL}/campaigns/${nodecg.bundleConfig.tiltify_campaign_id}`, {
 			headers: {
@@ -76,7 +92,13 @@ module.exports = function (nodecg) {
 		var parsedContent = JSON.parse(content);
 		var polls = parsedContent.data;
 		pollsRep.value = polls;
-	}
+  }
+  
+  function processSchedule(content) {
+    var parsedContent = JSON.parse(content);
+    var schedule = parsedContent.data;
+    scheduleRep.value = schedule;
+  }
 
 	function askTiltify() {
 		askTiltifyForDonations();
