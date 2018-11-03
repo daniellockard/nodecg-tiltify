@@ -44,7 +44,6 @@ module.exports = function (nodecg) {
 				donations[i].shown = false;
 				donations[i].read = false;
 				donationsRep.value.push(donations[i]);
-				nodecg.sendMessage("donation", donations[i]);
 			}
 		}
 	}
