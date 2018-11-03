@@ -2,7 +2,9 @@
 
 module.exports = function(nodecg) {
   var WebRequest = require("web-request");
-  var donationsRep = nodecg.Replicant("donations");
+	var donationsRep = nodecg.Replicant("donations", {
+		defaultValue: []
+	});
   var campaignTotalRep = nodecg.Replicant("total");
 
 
