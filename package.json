@@ -1,0 +1,28 @@
+{
+  "name": "tiltify-api",
+  "version": "0.0.0",
+  "description": "Tiltify API Client",
+  "homepage": "https://github.com/daniellockard/nodecg-tiltify",
+  "author": {
+    "name": "Danny Lockard",
+    "email": "danielhlockard@gmail.com",
+    "url": ""
+  },
+  "files": [
+    "dashboard",
+    "graphics",
+    "extension.js",
+    "extension"
+  ],
+  "keywords": [
+    "tiltify",
+    "nodecg-bundle"
+  ],
+  "nodecg": {
+    "compatibleRange": "^1.1.1"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "web-request": "*"
+  }
+}
