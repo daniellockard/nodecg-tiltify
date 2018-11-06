@@ -122,7 +122,7 @@ module.exports = function(nodecg) {
 
   function processTotal(content) {
     var parsedContent = JSON.parse(content);
-    campaignTotalRep.value = parsedContent.data.amountRaised;
+    campaignTotalRep.value = parseFloat(parsedContent.data.amountRaised);
   }
 
   function processDonations(content) {
