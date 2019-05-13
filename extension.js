@@ -51,31 +51,41 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForPolls () {
     client.Campaigns.getPolls(nodecg.bundleConfig.tiltify_campaign_id, function (polls) {
-      pollsRep.value = polls
+      if (pollsRep.vale !== polls) {
+        pollsRep.value = polls
+      }
     })
   }
 
   async function askTiltifyForSchedule () {
     client.Campaigns.getSchedule(nodecg.bundleConfig.tiltify_campaign_id, function (schedule) {
-      scheduleRep.value = schedule
+      if (scheduleRep.value !== schedule) {
+        scheduleRep.value = schedule
+      }
     })
   }
 
   async function askTiltifyForChallenges () {
     client.Campaigns.getChallenges(nodecg.bundleConfig.tiltify_campaign_id, function (challenges) {
-      challengesRep.value = challenges
+      if (challengesRep.value !== challenges) {
+        challengesRep.value = challenges
+      }
     })
   }
 
   async function askTiltifyForRewards () {
     client.Campaigns.getRewards(nodecg.bundleConfig.tiltify_campaign_id, function (rewards) {
-      rewardsRep.value = rewards
+      if (rewardsRep.value !== rewards) {
+        rewardsRep.value = rewards
+      }
     })
   }
 
   async function askTiltifyForTotal () {
     client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id, function (campaign) {
-      campaignTotalRep.value = parseFloat(campaign.amountRaised)
+      if (campaignTotalRep !== parseFloat(campaign.amountRaised)) {
+        campaignTotalRep.value = parseFloat(campaign.amountRaised)
+      }
     })
   }
 
