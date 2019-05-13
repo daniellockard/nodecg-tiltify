@@ -23,12 +23,12 @@ module.exports = function (nodecg) {
   var TiltifyClient = require('tiltify-api-client')
 
   if (nodecg.bundleConfig.tiltify_api_key === '') {
-    nodecg.log.info('Please set Tiltify API key in cfg/tiltify-api.json')
+    nodecg.log.info('Please set tiltify_api_key in cfg/nodecg-tiltify.json')
     return
   }
 
   if (nodecg.bundleConfig.tiltify_campaign_id === '') {
-    nodecg.log.info('Please set Tiltify campaign ID in cfg/tiltify-api.json')
+    nodecg.log.info('Please set tiltify_campaign_id in cfg/nodecg-tiltify.json')
     return
   }
 
