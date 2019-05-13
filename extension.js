@@ -36,7 +36,6 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForDonations () {
     client.Campaigns.getRecentDonations(nodecg.bundleConfig.tiltify_campaign_id, function (donations) {
-      console.log(donations)
     for (let i = 0; i < donations.length; i++) {
       var found = donationsRep.value.find(function (element) {
         return element.id === donations[i].id
