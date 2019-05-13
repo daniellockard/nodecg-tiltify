@@ -51,7 +51,7 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForPolls () {
     client.Campaigns.getPolls(nodecg.bundleConfig.tiltify_campaign_id, function (polls) {
-      if (pollsRep.vale !== polls) {
+      if (JSON.stringify(pollsRep.value) !== JSON.stringify(polls)) {
         pollsRep.value = polls
       }
     })
@@ -59,7 +59,7 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForSchedule () {
     client.Campaigns.getSchedule(nodecg.bundleConfig.tiltify_campaign_id, function (schedule) {
-      if (scheduleRep.value !== schedule) {
+      if (JSON.stringify(scheduleRep.value) !== JSON.stringify(schedule)) {
         scheduleRep.value = schedule
       }
     })
@@ -67,7 +67,7 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForChallenges () {
     client.Campaigns.getChallenges(nodecg.bundleConfig.tiltify_campaign_id, function (challenges) {
-      if (challengesRep.value !== challenges) {
+      if (JSON.stringify(challengesRep.value) !== JSON.stringify(challenges)) {
         challengesRep.value = challenges
       }
     })
@@ -75,7 +75,7 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForRewards () {
     client.Campaigns.getRewards(nodecg.bundleConfig.tiltify_campaign_id, function (rewards) {
-      if (rewardsRep.value !== rewards) {
+      if (JSON.stringify(rewardsRep.value) !== JSON.stringify(rewards)) {
         rewardsRep.value = rewards
       }
     })
@@ -83,7 +83,7 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForTotal () {
     client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id, function (campaign) {
-      if (campaignTotalRep !== parseFloat(campaign.amountRaised)) {
+      if (campaignTotalRep.value !== parseFloat(campaign.amountRaised)) {
         campaignTotalRep.value = parseFloat(campaign.amountRaised)
       }
     })
