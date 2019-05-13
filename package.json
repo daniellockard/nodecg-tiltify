@@ -1,6 +1,6 @@
 {
   "name": "nodecg-tiltify",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Tiltify API Client",
   "homepage": "https://github.com/daniellockard/nodecg-tiltify",
   "author": {
@@ -9,10 +9,7 @@
     "url": ""
   },
   "files": [
-    "dashboard",
-    "graphics",
-    "extension.js",
-    "extension"
+    "extension.js"
   ],
   "keywords": [
     "tiltify",
@@ -23,6 +20,6 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "web-request": "*"
+    "tiltify-api-client": "^1.0.5"
   }
 }
