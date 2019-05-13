@@ -36,18 +36,17 @@ module.exports = function (nodecg) {
 
   async function askTiltifyForDonations () {
     client.Campaigns.getRecentDonations(nodecg.bundleConfig.tiltify_campaign_id, function (donations) {
-    for (let i = 0; i < donations.length; i++) {
-      var found = donationsRep.value.find(function (element) {
-        return element.id === donations[i].id
-      })
-      if (found === undefined) {
-        donations[i].shown = false
-        donations[i].read = false
-        donationsRep.value.push(donations[i])
+      for (let i = 0; i < donations.length; i++) {
+        var found = donationsRep.value.find(function (element) {
+          return element.id === donations[i].id
+        })
+        if (found === undefined) {
+          donations[i].shown = false
+          donations[i].read = false
+          donationsRep.value.push(donations[i])
+        }
       }
-    
-    }
-  })
+    })
   }
 
   async function askTiltifyForPolls () {
@@ -69,7 +68,7 @@ module.exports = function (nodecg) {
   }
 
   async function askTiltifyForRewards () {
-    client.Campaigns.getRewards(nodecg.bundleConfig.tiltify_campaign_id, function(rewards) {
+    client.Campaigns.getRewards(nodecg.bundleConfig.tiltify_campaign_id, function (rewards) {
       rewardsRep.value = rewards
     })
   }
