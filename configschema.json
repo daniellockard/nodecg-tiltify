@@ -2,11 +2,11 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"properties": {
-		"api_key": {
+		"tiltify_api_key": {
 			"type": "string",
 			"default": ""
 		},
-		"campaign_id": {
+		"tiltify_campaign_id": {
 			"type": "string",
 			"default": ""
 		}

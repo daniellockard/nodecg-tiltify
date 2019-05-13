@@ -9,10 +9,7 @@
     "url": ""
   },
   "files": [
-    "dashboard",
-    "graphics",
-    "extension.js",
-    "extension"
+    "extension.js"
   ],
   "keywords": [
     "tiltify",
@@ -23,6 +20,6 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "web-request": "*"
+    "tiltify-api-client": "^1.0.8"
   }
 }

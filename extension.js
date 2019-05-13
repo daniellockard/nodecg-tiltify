@@ -1,181 +1,96 @@
-"use strict";
+'use strict'
 
-module.exports = function(nodecg) {
-  var WebRequest = require("web-request");
-  var donationsRep = nodecg.Replicant("donations", {
+module.exports = function (nodecg) {
+  var donationsRep = nodecg.Replicant('donations', {
     defaultValue: []
-  });
-  var campaignTotalRep = nodecg.Replicant("total", {
+  })
+  var campaignTotalRep = nodecg.Replicant('total', {
     defaultValue: 0
-  });
-  var pollsRep = nodecg.Replicant("donationpolls", {
+  })
+  var pollsRep = nodecg.Replicant('donationpolls', {
     defaultValue: []
-  });
-  var scheduleRep = nodecg.Replicant("schedule", {
+  })
+  var scheduleRep = nodecg.Replicant('schedule', {
     defaultValue: []
-  });
-  var challengesRep = nodecg.Replicant("challenges", {
+  })
+  var challengesRep = nodecg.Replicant('challenges', {
     defaultValue: []
-  });
-  var rewardsRep = nodecg.Replicant("rewards", {
+  })
+  var rewardsRep = nodecg.Replicant('rewards', {
     defaultValue: []
-  });
-  var defaultURL = "https://tiltify.com/api/v3";
+  })
 
-  if (nodecg.bundleConfig.tiltify_api_key == "") {
-    nodecg.log.info("Please set Tiltify API key in cfg/tiltify-api.json");
-    return;
+  var TiltifyClient = require('tiltify-api-client')
+
+  if (nodecg.bundleConfig.tiltify_api_key === '') {
+    nodecg.log.info('Please set tiltify_api_key in cfg/nodecg-tiltify.json')
+    return
   }
 
-  if (nodecg.bundleConfig.tiltify_campaign_id == "") {
-    nodecg.log.info("Please set Tiltify campaign ID in cfg/tiltify-api.json");
-    return;
+  if (nodecg.bundleConfig.tiltify_campaign_id === '') {
+    nodecg.log.info('Please set tiltify_campaign_id in cfg/nodecg-tiltify.json')
+    return
   }
 
-  async function askTiltifyForDonations() {
-    let donationsRequest = await WebRequest.get(
-      `${defaultURL}/campaigns/${
-        nodecg.bundleConfig.tiltify_campaign_id
-      }/donations`,
-      {
-        headers: {
-          Authorization: "Bearer " + nodecg.bundleConfig.tiltify_api_key
+  var client = new TiltifyClient(nodecg.bundleConfig.tiltify_api_key)
+
+  async function askTiltifyForDonations () {
+    client.Campaigns.getRecentDonations(nodecg.bundleConfig.tiltify_campaign_id, function (donations) {
+      for (let i = 0; i < donations.length; i++) {
+        var found = donationsRep.value.find(function (element) {
+          return element.id === donations[i].id
+        })
+        if (found === undefined) {
+          donations[i].shown = false
+          donations[i].read = false
+          donationsRep.value.push(donations[i])
         }
       }
-    );
-
-    processDonations(donationsRequest.content);
+    })
   }
 
-  async function askTiltifyForPolls() {
-    let pollsRequest = await WebRequest.get(
-      `${defaultURL}/campaigns/${
-        nodecg.bundleConfig.tiltify_campaign_id
-      }/polls`,
-      {
-        headers: {
-          Authorization: "Bearer " + nodecg.bundleConfig.tiltify_api_key
-        }
-      }
-    );
-
-    processPolls(pollsRequest.content);
+  async function askTiltifyForPolls () {
+    client.Campaigns.getPolls(nodecg.bundleConfig.tiltify_campaign_id, function (polls) {
+      pollsRep.value = polls
+    })
   }
 
-  async function askTiltifyForSchedule() {
-    let scheduleRequest = await WebRequest.get(
-      `${defaultURL}/campaigns/${
-        nodecg.bundleConfig.tiltify_campaign_id
-      }/schedule`,
-      {
-        headers: {
-          Authorization: "Bearer " + nodecg.bundleConfig.tiltify_api_key
-        }
-      }
-    );
-
-    processSchedule(scheduleRequest.content);
+  async function askTiltifyForSchedule () {
+    client.Campaigns.getSchedule(nodecg.bundleConfig.tiltify_campaign_id, function (schedule) {
+      scheduleRep.value = schedule
+    })
   }
 
-  async function askTiltifyForChallenges() {
-    let challengesRequest = await WebRequest.get(
-      `${defaultURL}/campaigns/${
-        nodecg.bundleConfig.tiltify_campaign_id
-      }/challenges`,
-      {
-        headers: {
-          Authorization: "Bearer " + nodecg.bundleConfig.tiltify_api_key
-        }
-      }
-    );
-
-    processChallenges(challengesRequest.content);
+  async function askTiltifyForChallenges () {
+    client.Campaigns.getChallenges(nodecg.bundleConfig.tiltify_campaign_id, function (challenges) {
+      challengesRep.value = challenges
+    })
   }
 
-  async function askTiltifyForRewards() {
-    let rewardsRequest = await WebRequest.get(
-      `${defaultURL}/campaigns/${
-        nodecg.bundleConfig.tiltify_campaign_id
-      }/rewards`,
-      {
-        headers: {
-          Authorization: "Bearer " + nodecg.bundleConfig.tiltify_api_key
-        }
-      }
-    );
-
-    processRewards(rewardsRequest.content);
+  async function askTiltifyForRewards () {
+    client.Campaigns.getRewards(nodecg.bundleConfig.tiltify_campaign_id, function (rewards) {
+      rewardsRep.value = rewards
+    })
   }
 
-  async function askTiltifyForTotal() {
-    var donationTotalRequest = await WebRequest.get(
-      `${defaultURL}/campaigns/${nodecg.bundleConfig.tiltify_campaign_id}`,
-      {
-        headers: {
-          Authorization: "Bearer " + nodecg.bundleConfig.tiltify_api_key
-        }
-      }
-    );
-
-    processTotal(donationTotalRequest.content);
+  async function askTiltifyForTotal () {
+    client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id, function (campaign) {
+      campaignTotalRep.value = parseFloat(campaign.amountRaised)
+    })
   }
 
-  function processTotal(content) {
-    var parsedContent = JSON.parse(content);
-    campaignTotalRep.value = parseFloat(parsedContent.data.amountRaised);
+  function askTiltify () {
+    askTiltifyForDonations()
+    askTiltifyForPolls()
+    askTiltifyForTotal()
+    askTiltifyForChallenges()
+    askTiltifyForSchedule()
+    askTiltifyForRewards()
   }
 
-  function processDonations(content) {
-    var parsedContent = JSON.parse(content);
-    var donations = parsedContent.data;
-    for (let i = 0; i < donations.length; i++) {
-      var found = donationsRep.value.find(function(element) {
-        return element.id == donations[i].id;
-      });
-      if (found == undefined) {
-        donations[i].shown = false;
-        donations[i].read = false;
-        donationsRep.value.push(donations[i]);
-      }
-    }
-  }
+  setInterval(function () {
+    askTiltify()
+  }, 5000)
 
-  function processPolls(content) {
-    var parsedContent = JSON.parse(content);
-    var polls = parsedContent.data;
-    pollsRep.value = polls;
-  }
-
-  function processSchedule(content) {
-    var parsedContent = JSON.parse(content);
-    var schedule = parsedContent.data;
-    scheduleRep.value = schedule;
-  }
-
-  function processChallenges(content) {
-    var parsedContent = JSON.parse(content);
-    var challenges = parsedContent.data;
-    challengesRep.value = challenges;
-  }
-
-  function processRewards(content) {
-    var parsedContent = JSON.parse(content);
-    var rewards = parsedContent.data;
-    rewardsRep.value = rewards;
-  }
-
-  function askTiltify() {
-    askTiltifyForDonations();
-    askTiltifyForPolls();
-    askTiltifyForTotal();
-    askTiltifyForChallenges();
-    askTiltifyForSchedule();
-    askTiltifyForRewards();
-  }
-
-  setInterval(function() {
-    askTiltify();
-  }, 5000);
-
-  askTiltify();
-};
+  askTiltify()
+}
