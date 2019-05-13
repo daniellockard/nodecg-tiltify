@@ -35,7 +35,7 @@ module.exports = function (nodecg) {
   var client = new TiltifyClient(nodecg.bundleConfig.tiltify_api_key)
 
   async function askTiltifyForDonations () {
-    let donations = client.Campaigns.getRecentDonations(nodecg.bundleConfig.tiltify_campaign_id)
+    client.Campaigns.getRecentDonations(nodecg.bundleConfig.tiltify_campaign_id, function (donations) {
     for (let i = 0; i < donations.length; i++) {
       var found = donationsRep.value.find(function (element) {
         return element.id === donations[i].id
@@ -45,28 +45,39 @@ module.exports = function (nodecg) {
         donations[i].read = false
         donationsRep.value.push(donations[i])
       }
+    
     }
+  })
   }
 
   async function askTiltifyForPolls () {
-    pollsRep.value = client.Campaigns.getPolls(nodecg.bundleConfig.tiltify_campaign_id)
+    client.Campaigns.getPolls(nodecg.bundleConfig.tiltify_campaign_id, function (polls) {
+      pollsRep.value = polls
+    })
   }
 
   async function askTiltifyForSchedule () {
-    scheduleRep.value = client.Campaigns.getSchedule(nodecg.bundleConfig.tiltify_campaign_id)
+    client.Campaigns.getSchedule(nodecg.bundleConfig.tiltify_campaign_id, function (schedule) {
+      scheduleRep.value = schedule
+    })
   }
 
   async function askTiltifyForChallenges () {
-    challengesRep.value = client.Campaigns.getChallenges(nodecg.bundleConfig.tiltify_campaign_id)
+    client.Campaigns.getChallenges(nodecg.bundleConfig.tiltify_campaign_id, function (challenges) {
+      challengesRep.value = challenges
+    })
   }
 
   async function askTiltifyForRewards () {
-    rewardsRep.value = client.Campaigns.getRewards(nodecg.bundleConfig.tiltify_campaign_id)
+    client.Campaigns.getRewards(nodecg.bundleConfig.tiltify_campaign_id, function(rewards) {
+      rewardsRep.value = rewards
+    })
   }
 
   async function askTiltifyForTotal () {
-    let campaign = client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id)
-    campaignTotalRep.value = parseFloat(campaign.amountRaised)
+    client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id, function (campaign) {
+      campaignTotalRep.value = parseFloat(campaign.amountRaised)
+    })
   }
 
   function askTiltify () {
