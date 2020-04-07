@@ -57,7 +57,7 @@ module.exports = function (nodecg) {
       if (JSON.stringify(allDonationsRep.value) !== JSON.stringify(alldonations)) {
         allDonationsRep.value = alldonations
       }
-    }
+    })
   }
 
   async function askTiltifyForPolls () {
