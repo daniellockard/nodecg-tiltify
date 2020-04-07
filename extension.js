@@ -53,7 +53,7 @@ module.exports = function (nodecg) {
   }
 
   async function askTiltifyForAllDonations () {
-    client.Campaigns.getDonations(nodecg.bundleConfig.tiltify_campaign_id), function (alldonations) {
+    client.Campaigns.getDonations(nodecg.bundleConfig.tiltify_campaign_id, function (alldonations) {
       if (JSON.stringify(allDonationsRep.value) !== JSON.stringify(alldonations)) {
         allDonationsRep.value = alldonations
       }
