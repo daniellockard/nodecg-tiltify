@@ -4,6 +4,9 @@ module.exports = function (nodecg) {
   var donationsRep = nodecg.Replicant('donations', {
     defaultValue: []
   })
+  var allDonationsRep = nodecg.Replicant('alldonations', {
+    defaultValue: []
+  })
   var campaignTotalRep = nodecg.Replicant('total', {
     defaultValue: 0
   })
@@ -47,6 +50,14 @@ module.exports = function (nodecg) {
         }
       }
     })
+  }
+
+  async function askTiltifyForAllDonations () {
+    client.Campaigns.getDonations(nodecg.bundleConfig.tiltify_campaign_id), function (alldonations) {
+      if (JSON.stringify(allDonationsRep.value) !== JSON.stringify(alldonations)) {
+        allDonationsRep.value = alldonations
+      }
+    }
   }
 
   async function askTiltifyForPolls () {
@@ -102,5 +113,10 @@ module.exports = function (nodecg) {
     askTiltify()
   }, 5000)
 
+  setInterval(function() {
+    askTiltifyForAllDonations()
+  }, 10000)
+
   askTiltify()
+  askTiltifyForAllDonations()
 }
