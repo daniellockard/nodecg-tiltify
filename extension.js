@@ -120,16 +120,14 @@ module.exports = function (nodecg) {
   askTiltify()
   askTiltifyForAllDonations()
 
-  module.exports = function (nodecg) {
-    const router = nodecg.Router();
+  const router = nodecg.Router();
 
-    router.post('/markallread', (req, res) => {
-      for (let i = 0; i < donationsRep.value.length; i++) {
-        donationsRep.value[i].read = true;
-      }
-      res.send('{"message": "All donations marked as read"}');
-    });
+  router.post('/markallread', (req, res) => {
+    for (let i = 0; i < donationsRep.value.length; i++) {
+      donationsRep.value[i].read = true;
+    }
+    res.send('{"message": "All donations marked as read"}');
+  });
 
-    nodecg.mount('/nodecg-tiltify', router);
-  };
+  nodecg.mount('/nodecg-tiltify', router);
 }
