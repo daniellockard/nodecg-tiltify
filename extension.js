@@ -170,4 +170,20 @@ module.exports = function (nodecg) {
       }
     }
   });
+
+  nodecg.listenFor("mark-donation-as-shown", (value, ack) => {
+    var isElement = (element) => element.id === value.id;
+    var elementIndex = donationsRep.value.findIndex(isElement);
+    if (elementIndex !== -1) {
+      donationsRep.value[elementIndex].shown = true;
+      if (ack && !ack.handled) {
+        ack(null, null);
+      }
+    } else {
+      if (ack && !ack.handled) {
+        ack(new Error("Donation not found to mark as read"), null);
+      }
+    }
+  });
+
 };
