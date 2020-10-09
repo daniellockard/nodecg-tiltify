@@ -35,3 +35,15 @@ The replicants convert results from the Tiltify API into objects, and more infor
 \*`donations` objects contain the additional properties `read` and `shown` which can be used to indicate if something was read in the dashboard or shown in a graphic. `donations` also only collects donations from the most recent 'page' of the Tiltify API.
 
 \*\*`alldonations` contains all donations that have been made.
+
+This bundle also has 3 messages that it listens for that can be sent using
+`nodecg.sendMessageToBundle`
+* `clear-donations` - Marks all donations as read
+* `mark-donation-as-read` - marks a specific donation as read
+* `mark-donation-as-shown` - marks a specific donation as shown
+
+Note: this should be done in the form of
+`nodecg.sendMessageToBundle('clear-donation', 'nodecg-tiltify')` or
+`nodecg.sendMessageToBundle('mark-donation-as-read', 'nodecg-tiltify',
+donationObject`. The donation object sent to shown or read needs to at least
+have the donation ID so that the back end can find and mark.
