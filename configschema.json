@@ -2,7 +2,19 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
 	"properties": {
-		"tiltify_api_key": {
+		"tiltify_client_id": {
+			"type": "string",
+			"default": ""
+		},
+		"tiltify_client_secret": {
+			"type": "string",
+			"default": ""
+		},
+		"tiltify_webhook_id": {
+			"type": "string",
+			"default": ""
+		},
+		"tiltify_webhook_secret": {
 			"type": "string",
 			"default": ""
 		},
