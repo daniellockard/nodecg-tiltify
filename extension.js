@@ -34,9 +34,6 @@ module.exports = function (nodecg) {
   var rewardsRep = nodecg.Replicant("rewards", {
     defaultValue: [],
   });
-  var accountRep = nodecg.Replicant("account", {
-    defaultValue: {}
-  })
 
   var TiltifyClient = require("tiltify-api-client");
   
@@ -44,9 +41,9 @@ module.exports = function (nodecg) {
     return string === undefined || string === null || string === ""
   }
 
-  if (isEmpty(nodecg.bundleConfig.tiltify_webhook_secret) || isEmpty(nodecg.bundleConfig.tiltify_webhook_id)|| isEmpty(nodecg.bundleConfig.tiltify_redirect_uri)) {
+  if (isEmpty(nodecg.bundleConfig.tiltify_webhook_secret) || isEmpty(nodecg.bundleConfig.tiltify_webhook_id)) {
     WEBHOOK_MODE = false
-    nodecg.log.info("Running without webhooks!! Please set redirect uri, webhook secret, and webhook id in cfg/nodecg-tiltify.json [See README]");
+    nodecg.log.info("Running without webhooks!! Please set webhook secret, and webhook id in cfg/nodecg-tiltify.json [See README]");
     return;
   }
 
@@ -89,59 +86,6 @@ module.exports = function (nodecg) {
   }
 
   /**
-   * Checks that the key is not expired, and if so, regenerates the key
-   * @returns {string} access key
-   */
-  async function checkKey() {
-    // Not signed in
-    if (!accountRep.value || accountRep.value == {} || !accountRep.value.refresh_token) {
-      return false
-    }
-    // If not expired else renew
-    if (new Date(accountRep.value.expires).getTime() > new Date().getTime()) {
-      return accountRep.value.access_token
-    } else {
-      let keys
-      try {
-        console.log(`https://v5api.tiltify.com/oauth/token`
-        + `?client_id=${nodecg.bundleConfig.tiltify_client_id}`
-        + `&client_secret=${nodecg.bundleConfig.tiltify_client_secret}`
-        + `&grant_type=refresh_token`
-        + `&code=${accountRep.value.refresh_token}`
-        + `&redirect_uri=${nodecg.bundleConfig.tiltify_redirect_uri}`
-        + `&scope=public webhooks:write`)
-        console.log(accountRep.value)
-        keys = await fetch(`https://v5api.tiltify.com/oauth/token`
-              + `?client_id=${nodecg.bundleConfig.tiltify_client_id}`
-              + `&client_secret=${nodecg.bundleConfig.tiltify_client_secret}`
-              + `&grant_type=refresh_token`
-              + `&code=${accountRep.value.refresh_token}`
-              + `&redirect_uri=${nodecg.bundleConfig.tiltify_redirect_uri}`
-              + `&scope=public webhooks:write`
-            , {
-          method: 'POST'
-        })
-        keys = await keys.json()
-      } catch (e) {
-        nodecg.log.error('nodecg-tiltify failed to refresh keys\n', e)
-      }
-      console.log(keys)
-      if (keys.access_token) {
-        const expires = new Date(new Date(keys.created_at).getTime() + keys.expires_in * 1000)
-        accountRep.value = {
-          access_token: keys.access_token,
-          refresh_token: keys.refresh_token ?? accountRep.value.refresh_token,
-          expires
-        }
-        return keys.access_token
-      } else {
-        nodecg.log.error("Failed to obtain keys when refreshing tokens")
-        return false
-      }
-    }
-  }
-
-  /**
    * Verifies that the payload delivered matches the signature provided, using sha256 algorithm and the webhook secret
    * Acts as middleware, use in route chain
    */
@@ -159,82 +103,6 @@ module.exports = function (nodecg) {
       res.sendStatus(200)
     };
   }
-
-  /**
-   * Activates the webhook and subscribes to donation and campaign total updates
-   */
-  async function activateWebhook() {
-    const key = await checkKey()
-    if (key) {
-      const webhook = await fetch(`https://v5api.tiltify.com/api/private/webhook_endpoints/${nodecg.bundleConfig.tiltify_webhook_id}/activate`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${key}`
-        }
-      })
-      if (!webhook.ok) {
-        nodecg.log.error('Webhook activation failed', webhook.statusText)
-      }
-      // TODO: When tiltify fixes it, change enpdoints back to endpoints
-      const webhook_subscribe = await fetch(`https://v5api.tiltify.com/api/private/webhook_enpdoints/${nodecg.bundleConfig.tiltify_webhook_id}/webhook_subscriptions/${nodecg.bundleConfig.tiltify_campaign_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
-        },
-        body: JSON.stringify({event_types: ['public:direct:fact_updated', 'public:direct:donation_updated']})
-      })
-      if (!webhook_subscribe.ok) {
-        nodecg.log.error('Webhook Subscription failed', webhook_subscribe.statusText)
-      }
-    }
-  }
-
-  app.get('/nodecg-tiltify/regenerate', (req, res) => {
-    activateWebhook()
-    res.send("Regenerated").end()
-  })
-
-  app.get('/nodecg-tiltify/logout', (req, res) => {
-    accountRep.value = {}
-    res.send("Logged Out").end()
-  })
-
-  app.get('/nodecg-tiltify/login', (req, res) => {
-    res.redirect(302, `https://v5api.tiltify.com/oauth/authorize?client_id=${nodecg.bundleConfig.tiltify_client_id}&redirect_uri=${nodecg.bundleConfig.tiltify_redirect_uri}&response_type=code&scope=public webhooks:write`)
-  })
-
-  app.get(`/nodecg-tiltify/callback`, async (req, res) => {
-    let keys
-    try {
-      keys = await fetch(`https://v5api.tiltify.com/oauth/token`
-            + `?client_id=${nodecg.bundleConfig.tiltify_client_id}`
-            + `&client_secret=${nodecg.bundleConfig.tiltify_client_secret}`
-            + `&grant_type=authorization_code`
-            + `&code=${req.query.code}`
-            + `&redirect_uri=${nodecg.bundleConfig.tiltify_redirect_uri}`
-            + `&scope=public webhooks:write`
-          , {
-        method: 'POST'
-      })
-      keys = await keys.json()
-    } catch (e) {
-      nodecg.log.error("nodecg-tiltify failed to create keys\n", e)
-    }
-    if (keys.access_token) {
-      const expires = new Date(new Date(keys.created_at).getTime() + keys.expires_in * 1000)
-      accountRep.value = {
-        access_token: keys.access_token,
-        refresh_token: keys.refresh_token,
-        expires
-      }
-      activateWebhook()
-      res.send("Logged in, close this tab").end()
-    } else {
-      nodecg.log.error("Failed to obtain keys when signing into tiltify")
-      res.send("Login failed").end()
-    }
-  })
 
   app.post('/nodecg-tiltify/webhook', validateSignature, (req, res) => {
     console.log('Webhook in',req.body.meta.event_type)
@@ -347,6 +215,16 @@ module.exports = function (nodecg) {
   }
 
   client.initialize().then(()=>{
+    if (WEBHOOK_MODE) {
+      client.Webhook.activate(nodecg.bundleConfig.tiltify_webhook_id, () => {
+        nodecg.log.info('Webhooks staged!')
+      })
+      const events = {"event_types": ["public:direct:fact_updated", "public:direct:donation_updated"]}
+      client.Webhook.subscribe(nodecg.bundleConfig.tiltify_webhook_id, nodecg.bundleConfig.tiltify_campaign_id, events, () => {
+        nodecg.log.info('Webhooks activated!')
+      })
+    }
+    
     askTiltifyForTotal();
     askTiltify();
     askTiltifyForAllDonations();
@@ -401,11 +279,6 @@ module.exports = function (nodecg) {
       }
     }
   });
-
-  // On initalization if account has been logged in previously, activate webhooks
-  if (accountRep.value !== {} && nodecg.bundleConfig.tiltify_webhook_id) {
-    activateWebhook()
-  }
 
   nodecg.mount(app);
 

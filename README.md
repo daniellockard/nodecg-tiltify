@@ -16,13 +16,12 @@ If used in tandem with `nodecg-tiltify-donation-reader` that must ALSO be update
 ## Setup
 
 1. Add `nodecg-tiltify` to your [`nodecg.dependencies`](https://nodecg.com/docs/manifest/#nodecgbundledependencies) in your bundle's package.json
-2. [Create an application for your Tiltify account](https://tiltify.github.io/api/topics/getting-started.html). Use your nodecg basepath + `/nodecg-tiltify/callback` as your Redirect URI
+2. [Create an application for your Tiltify account](https://tiltify.github.io/api/topics/getting-started.html).
 3. Take the client id and secret from your application and add to configuration
 4. Lastly, provide the campaign id in the configuration. It can be found in the tiltify dashboard under Setup -> Information -> Public ID. Do not use Legacy ID
 ```
 nodecg/cfg/nodecg-tiltify.json
 {
-	"tiltify_redirect_uri": "BASEPATH/nodecg-tiltify/callback",
 	"tiltify_client_id": "KEY_HERE",
 	"tiltify_client_secret": "KEY_HERE",
 	"tiltify_webhook_id": "ID_HERE",

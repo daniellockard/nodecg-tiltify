@@ -16,16 +16,7 @@
     "nodecg-bundle"
   ],
   "nodecg": {
-    "compatibleRange": "^1.1.1",
-    "dashboardPanels": [
-      {
-        "name": "Tiltify Account",
-        "title": "Tiltify Account Management",
-        "file": "tiltify.html",
-        "workspace": "Config",
-        "width": 3
-      }
-    ]
+    "compatibleRange": "^1.1.1"
   },
   "license": "Apache-2.0",
   "dependencies": {
