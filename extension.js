@@ -105,7 +105,6 @@ module.exports = function (nodecg) {
   }
 
   app.post('/nodecg-tiltify/webhook', validateSignature, (req, res) => {
-    console.log('Webhook in',req.body.meta.event_type)
     // Verify this webhook is sending out stuff for the campaign we're working on
     if (
       req.body.meta.event_type === "public:direct:donation_updated" &&
