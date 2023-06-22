@@ -224,7 +224,7 @@ module.exports = function (nodecg) {
         nodecg.log.info('Webhooks activated!')
       })
     }
-    
+
     askTiltifyForTotal();
     askTiltify();
     askTiltifyForAllDonations();
@@ -260,7 +260,7 @@ module.exports = function (nodecg) {
       }
     } else {
       if (ack && !ack.handled) {
-        nodecg.log.error('Donation not found to mark as read | id:'+value.id);
+        nodecg.log.error('Donation not found to mark as read | id:', value.id);
         ack(new Error("Donation not found to mark as read"), null);
       }
     }
@@ -276,7 +276,7 @@ module.exports = function (nodecg) {
       }
     } else {
       if (ack && !ack.handled) {
-        nodecg.log.error('Donation not found to mark as shown | id:'+value.id);
+        nodecg.log.error('Donation not found to mark as shown | id:', value.id);
         ack(new Error("Donation not found to mark as shown"), null);
       }
     }
