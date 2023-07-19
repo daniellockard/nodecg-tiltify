@@ -1,6 +1,18 @@
 "use strict";
+const fetch = require('node-fetch')
+let crypto;
+let WEBHOOK_MODE = true
+
+try {
+  crypto = require('node:crypto');
+} catch (err) {
+  nodecg.log.error('ERROR: crypto support is disabled! webhook message authenticity cannot be validated. try a newer node version.');
+  WEBHOOK_MODE = false;
+}
 
 module.exports = function (nodecg) {
+  const app = nodecg.Router();
+
   var donationsRep = nodecg.Replicant("donations", {
     defaultValue: [],
   });
@@ -16,7 +28,7 @@ module.exports = function (nodecg) {
   var scheduleRep = nodecg.Replicant("schedule", {
     defaultValue: [],
   });
-  var challengesRep = nodecg.Replicant("challenges", {
+  var targetsRep = nodecg.Replicant("targets", {
     defaultValue: [],
   });
   var rewardsRep = nodecg.Replicant("rewards", {
@@ -24,34 +36,99 @@ module.exports = function (nodecg) {
   });
 
   var TiltifyClient = require("tiltify-api-client");
+  
+  function isEmpty(string) {
+    return string === undefined || string === null || string === ""
+  }
 
-  if (nodecg.bundleConfig.tiltify_api_key === "") {
-    nodecg.log.info("Please set tiltify_api_key in cfg/nodecg-tiltify.json");
+  if (isEmpty(nodecg.bundleConfig.tiltify_webhook_secret) || isEmpty(nodecg.bundleConfig.tiltify_webhook_id)) {
+    WEBHOOK_MODE = false
+    nodecg.log.info("Running without webhooks!! Please set webhook secret, and webhook id in cfg/nodecg-tiltify.json [See README]");
     return;
   }
 
-  if (nodecg.bundleConfig.tiltify_campaign_id === "") {
+  if (isEmpty(nodecg.bundleConfig.tiltify_client_id)) {
+    nodecg.log.info("Please set tiltify_client_id in cfg/nodecg-tiltify.json");
+    return;
+  }
+
+  if (isEmpty(nodecg.bundleConfig.tiltify_client_secret)) {
+    nodecg.log.info("Please set tiltify_client_secret in cfg/nodecg-tiltify.json");
+    return;
+  }
+
+  if (isEmpty(nodecg.bundleConfig.tiltify_campaign_id)) {
     nodecg.log.info(
       "Please set tiltify_campaign_id in cfg/nodecg-tiltify.json"
     );
     return;
   }
 
-  var client = new TiltifyClient(nodecg.bundleConfig.tiltify_api_key);
+  var client = new TiltifyClient(nodecg.bundleConfig.tiltify_client_id, nodecg.bundleConfig.tiltify_client_secret);
+
+  function pushUniqueDonation(donation) {
+    var found = donationsRep.value.find(function (element) {
+      return element.id === donation.id;
+    });
+    if (found === undefined) {
+      donation.shown = false;
+      donation.read = false;
+      donationsRep.value.push(donation);
+    }
+  }
+
+  function updateTotal(campaign) {
+    // Less than check in case webhooks are sent out-of-order. Only update the total if it's higher!
+    if (campaignTotalRep.value < parseFloat(campaign.amount_raised.value)
+    ) {
+      campaignTotalRep.value = parseFloat(campaign.amount_raised.value);
+    }
+  }
+
+  /**
+   * Verifies that the payload delivered matches the signature provided, using sha256 algorithm and the webhook secret
+   * Acts as middleware, use in route chain
+   */
+  function validateSignature(req, res, next) {
+    const signatureIn = req.get('X-Tiltify-Signature')
+    const timestamp = req.get('X-Tiltify-Timestamp')
+    const signedPayload = `${timestamp}.${JSON.stringify(req.body)}`
+    const hmac = crypto.createHmac('sha256', nodecg.bundleConfig.tiltify_webhook_secret);
+    hmac.update(signedPayload);
+    const signature = hmac.digest('base64');
+    if (signatureIn === signature) {
+      next()
+    } else {
+      // Close connection (200 code MUST be sent regardless)
+      res.sendStatus(200)
+    };
+  }
+
+  app.post('/nodecg-tiltify/webhook', validateSignature, (req, res) => {
+    // Verify this webhook is sending out stuff for the campaign we're working on
+    if (
+      req.body.meta.event_type === "public:direct:donation_updated" &&
+      req.body.data.campaign_id === nodecg.bundleConfig.tiltify_campaign_id
+    ) {
+      // New donation
+      pushUniqueDonation(req.body.data)
+    } else if (
+      req.body.meta.event_type === "public:direct:fact_updated" &&
+      req.body.data.id === nodecg.bundleConfig.tiltify_campaign_id
+    ) {
+      // Updated amount raised
+      updateTotal(req.body.data)
+    }
+    // Send ack
+    res.sendStatus(200)
+  })
 
   async function askTiltifyForDonations() {
     client.Campaigns.getRecentDonations(
       nodecg.bundleConfig.tiltify_campaign_id,
       function (donations) {
         for (let i = 0; i < donations.length; i++) {
-          var found = donationsRep.value.find(function (element) {
-            return element.id === donations[i].id;
-          });
-          if (found === undefined) {
-            donations[i].shown = false;
-            donations[i].read = false;
-            donationsRep.value.push(donations[i]);
-          }
+          pushUniqueDonation(donations[i])
         }
       }
     );
@@ -92,14 +169,14 @@ module.exports = function (nodecg) {
     );
   }
 
-  async function askTiltifyForChallenges() {
-    client.Campaigns.getChallenges(
+  async function askTiltifyForTargets() {
+    client.Campaigns.getTargets(
       nodecg.bundleConfig.tiltify_campaign_id,
-      function (challenges) {
+      function (targets) {
         if (
-          JSON.stringify(challengesRep.value) !== JSON.stringify(challenges)
+          JSON.stringify(targetsRep.value) !== JSON.stringify(targets)
         ) {
-          challengesRep.value = challenges;
+          targetsRep.value = targets;
         }
       }
     );
@@ -120,31 +197,45 @@ module.exports = function (nodecg) {
     client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id, function (
       campaign
     ) {
-      if (campaignTotalRep.value !== parseFloat(campaign.amountRaised)) {
-        campaignTotalRep.value = parseFloat(campaign.amountRaised);
-      }
+      updateTotal(campaign)
     });
   }
 
   function askTiltify() {
-    askTiltifyForDonations();
+    // Donations and total are handled by websocket normally, only ask if not using websockets
+    if (!WEBHOOK_MODE) {
+      askTiltifyForDonations();
+      askTiltifyForTotal();
+    }
     askTiltifyForPolls();
-    askTiltifyForTotal();
-    askTiltifyForChallenges();
+    askTiltifyForTargets();
     askTiltifyForSchedule();
     askTiltifyForRewards();
   }
 
-  setInterval(function () {
+  client.initialize().then(()=>{
+    if (WEBHOOK_MODE) {
+      client.Webhook.activate(nodecg.bundleConfig.tiltify_webhook_id, () => {
+        nodecg.log.info('Webhooks staged!')
+      })
+      const events = {"event_types": ["public:direct:fact_updated", "public:direct:donation_updated"]}
+      client.Webhook.subscribe(nodecg.bundleConfig.tiltify_webhook_id, nodecg.bundleConfig.tiltify_campaign_id, events, () => {
+        nodecg.log.info('Webhooks activated!')
+      })
+    }
+
+    askTiltifyForTotal();
     askTiltify();
-  }, 5000);
-
-  setInterval(function () {
     askTiltifyForAllDonations();
-  }, 10000);
 
-  askTiltify();
-  askTiltifyForAllDonations();
+    setInterval(function () {
+      askTiltify();
+    }, WEBHOOK_MODE ? 120000 : 5000);
+  
+    setInterval(function () {
+      askTiltifyForAllDonations();
+    }, 5 * 60000);
+  })
 
   nodecg.listenFor("clear-donations", (value, ack) => {
     for (let i = 0; i < donationsRep.value.length; i++) {
@@ -157,15 +248,18 @@ module.exports = function (nodecg) {
   });
 
   nodecg.listenFor("mark-donation-as-read", (value, ack) => {
+    nodecg.log.info("Mark read", value.id)
     var isElement = (element) => element.id === value.id;
     var elementIndex = donationsRep.value.findIndex(isElement);
     if (elementIndex !== -1) {
+      nodecg.log.info("Found", elementIndex, donationsRep.value[elementIndex])
       donationsRep.value[elementIndex].read = true;
       if (ack && !ack.handled) {
         ack(null, null);
       }
     } else {
       if (ack && !ack.handled) {
+        nodecg.log.error('Donation not found to mark as read | id:', value.id);
         ack(new Error("Donation not found to mark as read"), null);
       }
     }
@@ -181,9 +275,12 @@ module.exports = function (nodecg) {
       }
     } else {
       if (ack && !ack.handled) {
-        ack(new Error("Donation not found to mark as read"), null);
+        nodecg.log.error('Donation not found to mark as shown | id:', value.id);
+        ack(new Error("Donation not found to mark as shown"), null);
       }
     }
   });
+
+  nodecg.mount(app);
 
 };
