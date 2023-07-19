@@ -21,6 +21,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "node-fetch": "^2.6.9",
-    "tiltify-api-client": "github:StoneMoney/tiltify-api-client"
+    "tiltify-api-client": "^2.0.0"
   }
 }
