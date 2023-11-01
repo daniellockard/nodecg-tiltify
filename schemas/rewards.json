@@ -1,5 +1,95 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
-  "default": []
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "active": {
+          "description": "Tiltify's API filters rewards so only active ones are returned",
+          "type": "boolean"
+        },
+        "amount": {
+          "$ref": "#/common/amount.json"
+        },
+        "amount_raised": {
+          "$ref": "#/common/amount.json"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ends_at": {
+          "$ref": "#/common/timestamp-nullable.json"
+        },
+        "fair_market_value": {
+          "$ref": "#/common/integer-nullable.json"
+        },
+        "highlighted": {
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/common/uuid.json"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "alt": {
+              "type": "string"
+            },
+            "height": {
+              "type": "integer"
+            },
+            "src": {
+              "type": "string"
+            },
+            "width": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "alt",
+            "height",
+            "src",
+            "width"
+          ]
+        },
+        "inserted_at": {
+          "$ref": "#/common/timestamp.json"
+        },
+        "legacy_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "quantity": {
+          "$ref": "#/common/integer-nullable.json"
+        },
+        "quantity_remaining": {
+          "$ref": "#/common/integer-nullable.json"
+        },
+        "starts_at": {
+          "$ref": "#/common/datetime-nullable.json"
+        },
+        "updated_at": {
+          "$ref": "#/common/datetime.json"
+        }
+      },
+      "required": [
+        "active",
+        "amount",
+        "description",
+        "ends_at",
+        "highlighted",
+        "id",
+        "image",
+        "inserted_at",
+        "legacy_id",
+        "name",
+        "quantity",
+        "quantity_remaining",
+        "updated_at"
+      ]
+    }
+  ]
 }
