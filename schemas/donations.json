@@ -1,5 +1,82 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "https://json-schema.org/draft-04/schema",
   "type": "array",
-  "default": []
+  "default": [],
+  "items": {
+    "type": "object",
+    "properties": {
+      "$comment": "Tiltify's fields",
+      "amount": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "id": {
+        "$ref": "#/common/uuid.json"
+      },
+      "campaign_id": {
+        "$ref": "#/common/uuid.json"
+      },
+      "completed_at": {
+        "$ref": "#/common/timestamp.json"
+      },
+      "created_at": {
+        "$ref": "#/common/timestamp.json"
+      },
+      "donor_comment": {
+        "type": "string"
+      },
+      "donor_name": {
+        "type": "string"
+      },
+      "fundraising_event_id": {
+        "$ref": "#/common/uuid-nullable.json"
+      },
+      "legacy_id": {
+        "type": "integer"
+      },
+      "poll_id": {
+        "$ref": "#/common/uuid-nullable.json"
+      },
+      "poll_option_id": {
+        "$ref": "#/common/uuid-nullable.json"
+      },
+      "reward_id": {
+        "$ref": "#/common/uuid-nullable.json"
+      },
+      "sustained": {
+        "type": "boolean"
+      },
+      "target_id": {
+        "$ref": "#/common/uuid-nullable.json"
+      },
+      "team_event_id": {
+        "$ref": "#/common/uuid-nullable.json"
+      },
+      "$comment": "nodecg-tiltify's fields",
+      "shown": {
+        "type": "boolean"
+      },
+      "read": {
+        "type": "boolean"
+      },
+      "$comment": "tiltify-control's fields",
+      "timeToApprove": {
+        "type": "integer"
+      },
+      "amountDisplay": {
+        "type": "number"
+      },
+      "modStatus": {
+        "description": "true = approved, false = censored or undefined = undecided",
+        "type": "boolean"
+      }
+    }
+  }
 }
