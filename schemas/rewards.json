@@ -83,12 +83,9 @@
         "highlighted",
         "id",
         "image",
-        "inserted_at",
-        "legacy_id",
         "name",
         "quantity",
-        "quantity_remaining",
-        "updated_at"
+        "quantity_remaining"
       ]
     }
   ]

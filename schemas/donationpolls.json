@@ -1,5 +1,68 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
-  "default": []
+  "items": {
+    "type": "object",
+    "properties": {
+      "active": {
+        "type": "boolean"
+      },
+      "amount_raised": {
+        "$ref": "#/common/amount.json"
+      },
+      "id": {
+        "$ref": "#/common/uuid.json"
+      },
+      "inserted_at": {
+        "$ref": "#/common/datetime.json"
+      },
+      "legacy_id": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "string"
+      },
+      "options": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "amount_raised": {
+              "$ref": "#/common/amount.json"
+            },
+            "id": {
+              "$ref": "#/common/uuid.json"
+            },
+            "inserted_at": {
+              "$ref": "#/common/datetime.json"
+            },
+            "legacy_id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "updated_at": {
+              "$ref": "#/common/datetime.json"
+            }
+          },
+          "required": [
+            "amount_raised",
+            "id",
+            "name"
+          ]
+        }
+      },
+      "updated_at": {
+        "$ref": "#/common/datetime.json"
+      }
+    },
+    "required": [
+      "active",
+      "amount_raised",
+      "id",
+      "name",
+      "options"
+    ]
+  }
 }
