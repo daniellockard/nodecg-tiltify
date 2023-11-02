@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
+  "default": [],
   "items": {
     "type": "object",
     "properties": {
@@ -32,7 +33,6 @@
         "$ref": "#/common/datetime.json"
       }
     },
-    "additionalProperties": true,
     "required": [
       "active",
       "amount",
@@ -41,6 +41,5 @@
       "id",
       "name"
     ]
-  },
-  "additionalItems": true
+  }
 }

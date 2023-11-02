@@ -13,27 +13,13 @@ try {
 module.exports = function (nodecg) {
   const app = nodecg.Router();
 
-  var donationsRep = nodecg.Replicant("donations", {
-    defaultValue: [],
-  });
-  var allDonationsRep = nodecg.Replicant("alldonations", {
-    defaultValue: [],
-  });
-  var campaignTotalRep = nodecg.Replicant("total", {
-    defaultValue: 0,
-  });
-  var pollsRep = nodecg.Replicant("donationpolls", {
-    defaultValue: [],
-  });
-  var scheduleRep = nodecg.Replicant("schedule", {
-    defaultValue: [],
-  });
-  var targetsRep = nodecg.Replicant("targets", {
-    defaultValue: [],
-  });
-  var rewardsRep = nodecg.Replicant("rewards", {
-    defaultValue: [],
-  });
+  var donationsRep = nodecg.Replicant("donations");
+  var allDonationsRep = nodecg.Replicant("alldonations");
+  var campaignTotalRep = nodecg.Replicant("total");
+  var pollsRep = nodecg.Replicant("donationpolls");
+  var scheduleRep = nodecg.Replicant("schedule");
+  var targetsRep = nodecg.Replicant("targets");
+  var rewardsRep = nodecg.Replicant("rewards");
 
   var TiltifyClient = require("tiltify-api-client");
   

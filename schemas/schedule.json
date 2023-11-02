@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
+  "default": [],
   "items": [
     {
       "type": "object",
@@ -30,7 +31,6 @@
           "$ref": "#/common/datetime.json"
         }
       },
-      "additionalProperties": true,
       "required": [
         "description",
         "ends_at",
