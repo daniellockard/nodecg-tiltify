@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "default": [],
+    "items": {
+        "type": "object",
+        "properties": {
+            "$comment": "Type of heat is currently unknown, so omitting for now",
+            "amount": {
+                "$ref": "#/common/amount.json"
+            },
+            "avatar": {
+                "$ref": "#/common/image.json"
+            },
+            "id": {
+                "$ref": "#/common/uuid.json"
+            },
+            "name": {
+                "type": "string"
+            },
+            "url": {
+                "type": "string"
+            }
+        },
+        "required": [
+            "amount",
+            "id",
+            "name",
+            "url"
+        ]
+    }
+}
