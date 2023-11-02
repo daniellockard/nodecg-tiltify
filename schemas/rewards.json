@@ -1,5 +1,82 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "array",
-  "default": []
+  "default": [],
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "active": {
+          "description": "Tiltify's API filters rewards so only active ones are returned",
+          "type": "boolean"
+        },
+        "amount": {
+          "$ref": "#/common/amount.json"
+        },
+        "amount_raised": {
+          "$ref": "#/common/amount.json"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ends_at": {
+          "$ref": "#/common/timestamp-nullable.json"
+        },
+        "fair_market_value": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "highlighted": {
+          "type": "boolean"
+        },
+        "id": {
+          "$ref": "#/common/uuid.json"
+        },
+        "image": {
+          "$ref": "#/common/image.json"
+        },
+        "inserted_at": {
+          "$ref": "#/common/timestamp.json"
+        },
+        "legacy_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "quantity_remaining": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "starts_at": {
+          "$ref": "#/common/datetime-nullable.json"
+        },
+        "updated_at": {
+          "$ref": "#/common/datetime.json"
+        }
+      },
+      "required": [
+        "active",
+        "amount",
+        "description",
+        "ends_at",
+        "highlighted",
+        "id",
+        "image",
+        "name",
+        "quantity",
+        "quantity_remaining"
+      ]
+    }
+  ]
 }

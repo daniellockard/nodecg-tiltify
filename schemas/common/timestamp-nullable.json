@@ -1,0 +1,11 @@
+{
+    "$schema": "https://json-schema.org/draft-04/schema",
+    "anyOf": [
+        {
+            "$ref": "#/timestamp.json"
+        },
+        {
+            "type": "null"
+        }
+    ]
+}

@@ -13,30 +13,18 @@ try {
 module.exports = function (nodecg) {
   const app = nodecg.Router();
 
-  var donationsRep = nodecg.Replicant("donations", {
-    defaultValue: [],
-  });
-  var allDonationsRep = nodecg.Replicant("alldonations", {
-    defaultValue: [],
-  });
-  var campaignTotalRep = nodecg.Replicant("total", {
-    defaultValue: 0,
-  });
-  var pollsRep = nodecg.Replicant("donationpolls", {
-    defaultValue: [],
-  });
-  var scheduleRep = nodecg.Replicant("schedule", {
-    defaultValue: [],
-  });
-  var targetsRep = nodecg.Replicant("targets", {
-    defaultValue: [],
-  });
-  var rewardsRep = nodecg.Replicant("rewards", {
-    defaultValue: [],
-  });
+  var donationsRep = nodecg.Replicant("donations");
+  var allDonationsRep = nodecg.Replicant("alldonations");
+  var campaignTotalRep = nodecg.Replicant("total");
+  var pollsRep = nodecg.Replicant("donationpolls");
+  var scheduleRep = nodecg.Replicant("schedule");
+  var targetsRep = nodecg.Replicant("targets");
+  var rewardsRep = nodecg.Replicant("rewards");
+  var milestonesRep = nodecg.Replicant("milestones");
+  var donorsRep = nodecg.Replicant("donors");
 
   var TiltifyClient = require("tiltify-api-client");
-  
+
   function isEmpty(string) {
     return string === undefined || string === null || string === ""
   }
@@ -193,6 +181,29 @@ module.exports = function (nodecg) {
     );
   }
 
+  async function askTiltifyForMilestones() {
+    client.Campaigns.getMilestones(
+      nodecg.bundleConfig.tiltify_campaign_id,
+      function (milestones) {
+        if (JSON.stringify(milestonesRep.value) !== JSON.stringify(milestones)) {
+          milestonesRep.value = milestones;
+        }
+      }
+    );
+  }
+
+  async function askTiltifyForDonors() {
+    client.Campaigns.getDonors(
+      nodecg.bundleConfig.tiltify_campaign_id,
+      function (donors) {
+        console.log(donors);
+        if (JSON.stringify(donorsRep.value) !== JSON.stringify(donors)) {
+          donorsRep.value = donors;
+        }
+      }
+    );
+  }
+
   async function askTiltifyForTotal() {
     client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id, function (
       campaign
@@ -211,14 +222,16 @@ module.exports = function (nodecg) {
     askTiltifyForTargets();
     askTiltifyForSchedule();
     askTiltifyForRewards();
+    askTiltifyForMilestones();
+    askTiltifyForDonors();
   }
 
-  client.initialize().then(()=>{
+  client.initialize().then(() => {
     if (WEBHOOK_MODE) {
       client.Webhook.activate(nodecg.bundleConfig.tiltify_webhook_id, () => {
         nodecg.log.info('Webhooks staged!')
       })
-      const events = {"event_types": ["public:direct:fact_updated", "public:direct:donation_updated"]}
+      const events = { "event_types": ["public:direct:fact_updated", "public:direct:donation_updated"] }
       client.Webhook.subscribe(nodecg.bundleConfig.tiltify_webhook_id, nodecg.bundleConfig.tiltify_campaign_id, events, () => {
         nodecg.log.info('Webhooks activated!')
       })
@@ -231,7 +244,7 @@ module.exports = function (nodecg) {
     setInterval(function () {
       askTiltify();
     }, WEBHOOK_MODE ? 120000 : 5000);
-  
+
     setInterval(function () {
       askTiltifyForAllDonations();
     }, 5 * 60000);
