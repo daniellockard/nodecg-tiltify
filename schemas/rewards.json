@@ -23,7 +23,10 @@
           "$ref": "#/common/timestamp-nullable.json"
         },
         "fair_market_value": {
-          "$ref": "#/common/integer-nullable.json"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "highlighted": {
           "type": "boolean"
@@ -32,27 +35,7 @@
           "$ref": "#/common/uuid.json"
         },
         "image": {
-          "type": "object",
-          "properties": {
-            "alt": {
-              "type": "string"
-            },
-            "height": {
-              "type": "integer"
-            },
-            "src": {
-              "type": "string"
-            },
-            "width": {
-              "type": "integer"
-            }
-          },
-          "required": [
-            "alt",
-            "height",
-            "src",
-            "width"
-          ]
+          "$ref": "#/common/image.json"
         },
         "inserted_at": {
           "$ref": "#/common/timestamp.json"
@@ -64,10 +47,16 @@
           "type": "string"
         },
         "quantity": {
-          "$ref": "#/common/integer-nullable.json"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "quantity_remaining": {
-          "$ref": "#/common/integer-nullable.json"
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "starts_at": {
           "$ref": "#/common/datetime-nullable.json"
