@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "active": {
+                "type": "boolean"
+            },
+            "amount": {
+                "$ref": "#/common/amount.json"
+            },
+            "id": {
+                "$ref": "#/common/uuid.json"
+            },
+            "inserted_at": {
+                "$ref": "#/common/datetime.json"
+            },
+            "legacy_id": {
+                "type": "integer"
+            },
+            "name": {
+                "type": "string"
+            },
+            "updated_at": {
+                "$ref": "#/common/datetime.json"
+            }
+        },
+        "required": [
+            "active",
+            "amount",
+            "id",
+            "name"
+        ]
+    }
+}
