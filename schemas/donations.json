@@ -58,17 +58,6 @@
       },
       "read": {
         "type": "boolean"
-      },
-      "$comment": "tiltify-control's fields",
-      "timeToApprove": {
-        "type": "integer"
-      },
-      "amountDisplay": {
-        "type": "number"
-      },
-      "modStatus": {
-        "description": "true = approved, false = censored or undefined = undecided",
-        "type": "boolean"
       }
     }
   },
