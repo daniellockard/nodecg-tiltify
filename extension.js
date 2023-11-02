@@ -21,6 +21,7 @@ module.exports = function (nodecg) {
   var targetsRep = nodecg.Replicant("targets");
   var rewardsRep = nodecg.Replicant("rewards");
   var milestonesRep = nodecg.Replicant("milestones");
+  var donorsRep = nodecg.Replicant("donors");
 
   var TiltifyClient = require("tiltify-api-client");
 
@@ -191,6 +192,18 @@ module.exports = function (nodecg) {
     );
   }
 
+  async function askTiltifyForDonors() {
+    client.Campaigns.getDonors(
+      nodecg.bundleConfig.tiltify_campaign_id,
+      function (donors) {
+        console.log(donors);
+        if (JSON.stringify(donorsRep.value) !== JSON.stringify(donors)) {
+          donorsRep.value = donors;
+        }
+      }
+    );
+  }
+
   async function askTiltifyForTotal() {
     client.Campaigns.get(nodecg.bundleConfig.tiltify_campaign_id, function (
       campaign
@@ -210,6 +223,7 @@ module.exports = function (nodecg) {
     askTiltifyForSchedule();
     askTiltifyForRewards();
     askTiltifyForMilestones();
+    askTiltifyForDonors();
   }
 
   client.initialize().then(() => {
